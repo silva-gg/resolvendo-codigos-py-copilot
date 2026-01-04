@@ -1,0 +1,66 @@
+name: Validação dos Desafios Python
+
+on:
+  push:
+    branches: [ main, master, copilot/** ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11']
+    
+    steps:
+    - name: Checkout do código
+      uses: actions/checkout@v4
+    
+    - name: Configurar Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Exibir versão do Python
+      run: python --version
+    
+    - name: Executar testes dos desafios
+      run: |
+        echo "🧪 Executando testes dos 6 desafios..."
+        python -m unittest test_desafios -v
+    
+    - name: Validar estrutura dos arquivos
+      run: |
+        echo "📁 Verificando estrutura de arquivos..."
+        test -f resolucoes_code/concat_dados.py && echo "✅ concat_dados.py existe"
+        test -f resolucoes_code/repet_txt.py && echo "✅ repet_txt.py existe"
+        test -f resolucoes_code/ope_mat.py && echo "✅ ope_mat.py existe"
+        test -f resolucoes_code/par_impar.py && echo "✅ par_impar.py existe"
+        test -f resolucoes_code/media_notas.py && echo "✅ media_notas.py existe"
+        test -f resolucoes_code/palindromo.py && echo "✅ palindromo.py existe"
+        echo "✅ Todos os arquivos de solução estão presentes!"
+    
+    - name: Verificar sintaxe Python
+      run: |
+        echo "🔍 Verificando sintaxe dos arquivos Python..."
+        python -m py_compile resolucoes_code/concat_dados.py
+        python -m py_compile resolucoes_code/repet_txt.py
+        python -m py_compile resolucoes_code/ope_mat.py
+        python -m py_compile resolucoes_code/par_impar.py
+        python -m py_compile resolucoes_code/media_notas.py
+        python -m py_compile resolucoes_code/palindromo.py
+        echo "✅ Todos os arquivos têm sintaxe válida!"
+    
+    - name: Relatório de sucesso
+      if: success()
+      run: |
+        echo "🎉 Todos os testes passaram com sucesso!"
+        echo "✅ Desafio 1: Concatenar Dados - OK"
+        echo "✅ Desafio 2: Repetir Texto - OK"
+        echo "✅ Desafio 3: Operações Matemáticas - OK"
+        echo "✅ Desafio 4: Par ou Ímpar - OK"
+        echo "✅ Desafio 5: Média de Notas - OK"
+        echo "✅ Desafio 6: Palíndromos - OK"
